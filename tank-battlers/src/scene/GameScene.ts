@@ -1,4 +1,7 @@
-import { PerspectiveCamera, WebGLRenderer, Scene, BoxGeometry, MeshBasicMaterial, Mesh } from "three";
+import { PerspectiveCamera, WebGLRenderer, Scene, Vector3, HemisphereLight } from "three";
+import GameEntity from "../entities/GameEntity";
+import GameMap from "../map/GameMap";
+import ResourceManager from "../utils/ResourceManager";
 
 class GameScene {
   private static _instance: GameScene;
@@ -15,6 +18,9 @@ class GameScene {
 
   // Three.js scene
   private readonly _scene = new Scene();
+
+  // Game entities
+  private _gameEntities: GameEntity[] = [];
 
   private constructor() {
     this._width = window.innerWidth;
@@ -35,9 +41,14 @@ class GameScene {
 
     const aspectRatio = this._width / this._height;
     this._camera = new PerspectiveCamera(45, aspectRatio, 0.1, 1000);
-    this._camera.position.set(0, 0, 3);
+    this._camera.position.set(7, 7, 15);
 
+    //Size change
     window.addEventListener("resize", this.resize, false);
+
+    //add the game map
+    const gameMap = new GameMap(new Vector3(0, 0, 0), 15);
+    this._gameEntities.push(gameMap);
   }
 
   private resize = () => {
@@ -48,12 +59,20 @@ class GameScene {
     this._camera.updateProjectionMatrix();
   }
 
-  public load = () => {
-    const geometry = new BoxGeometry(1, 1, 1);
-    const material = new MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new Mesh(geometry, material);
+  public load = async() => {
+    //Load game resources
+    await ResourceManager.instance.load();
 
-    this._scene.add(cube);
+    //Load game entities
+    for(let index = 0; index < this._gameEntities.length; index++) {
+      const element = this._gameEntities[index];
+      await element.load();
+      this._scene.add(element.mesh);
+    }
+
+    //Add light
+    const light = new HemisphereLight(0xffffbb, 0x080820, 1);
+    this._scene.add(light);
   };
 
   public render = () => {

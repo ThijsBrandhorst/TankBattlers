@@ -4,10 +4,13 @@ import GameScene from './scene/GameScene';
 
 function App() {
   useEffect(() => {
-    // Ensure GameScene is instantiated only after the component has mounted
-    const gameSceneInstance = GameScene.instance;
-    gameSceneInstance.load();
-    gameSceneInstance.render();
+    async function initializeGame() {
+      const gameSceneInstance = GameScene.instance;
+      await gameSceneInstance.load();
+      gameSceneInstance.render();
+    }
+
+    initializeGame();
   }, []);
 
   return (
