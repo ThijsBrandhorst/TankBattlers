@@ -1,4 +1,4 @@
-import { Mesh, Vector3 } from "three";
+import { Box3, Mesh, Sphere, Vector3 } from "three";
 
 abstract class GameEntity {
     protected _position: Vector3;
@@ -7,6 +7,12 @@ abstract class GameEntity {
     public get mesh(){
         return this._mesh;
     }
+
+    protected _collider?: Box3 | Sphere;
+    public get collider(){
+        return this._collider;
+    }
+
 
     constructor(position: Vector3){
         this._position = position;
