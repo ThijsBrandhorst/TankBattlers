@@ -10,6 +10,7 @@ import GameEntity from "../entities/GameEntity";
 import GameMap from "../map/GameMap";
 import ResourceManager from "../utils/ResourceManager";
 import PlayerTank from "../entities/PlayerTank";
+import Wall from "../map/Wall";
 
 class GameScene {
   private static _instance: GameScene;
@@ -30,7 +31,17 @@ class GameScene {
   // Game entities
   private _gameEntities: GameEntity[] = [];
 
+  private _mapSize = 15;
+
   private _clock:Clock = new Clock();
+
+  public get camera(){
+    return this._camera;
+  }
+
+  public get gameEntities(){
+    return this._gameEntities;
+  }
 
   private constructor() {
     this._width = window.innerWidth;
@@ -58,13 +69,32 @@ class GameScene {
     window.addEventListener("resize", this.resize, false);
 
     //add the map
-    const gameMap = new GameMap(new Vector3(0, 0, 0), 15);
+    const gameMap = new GameMap(new Vector3(0, 0, 0), this._mapSize);
     this._gameEntities.push(gameMap);
 
     //add the player tank
     const playerTank = new PlayerTank(new Vector3(7, 7, 0));
     this._gameEntities.push(playerTank);
+
+    this.createWalls();
   }
+
+  //creating walls
+  private createWalls = () => {
+    const edge = this._mapSize;
+
+    this._gameEntities.push(new Wall(new Vector3(0, 0, 0)));
+    this._gameEntities.push(new Wall(new Vector3(edge, 0, 0)));
+    this._gameEntities.push(new Wall(new Vector3(edge, edge, 0)));
+    this._gameEntities.push(new Wall(new Vector3(0, edge, 0)));
+
+    for(let i = 1; i < edge; i++){
+      this._gameEntities.push(new Wall(new Vector3(i, 0, 0)));
+      this._gameEntities.push(new Wall(new Vector3(0, i, 0)));
+      this._gameEntities.push(new Wall(new Vector3(edge, i, 0)));
+      this._gameEntities.push(new Wall(new Vector3(i, edge, 0)));
+    }
+  };
 
   private resize = () => {
     this._width = window.innerWidth;
@@ -86,7 +116,7 @@ class GameScene {
     }
 
     //Add light
-    const light = new HemisphereLight(0xffe0b2, 0x555555, 1);
+    const light = new HemisphereLight(0xffffbb, 0x080820, 1);
     this._scene.add(light);
   };
 

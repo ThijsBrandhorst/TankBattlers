@@ -1,6 +1,7 @@
-import { Mesh, MeshStandardMaterial, Vector3 } from "three";
+import { Box3, Mesh, MeshStandardMaterial, Sphere, Vector3 } from "three";
 import GameEntity from "./GameEntity";
 import ResourceManager from "../utils/ResourceManager";
+import GameScene from "../scene/GameScene";
 
 type keyboardState = {
   LeftPressed: boolean;
@@ -107,6 +108,13 @@ class playerTank extends GameEntity {
     //add meshes as child of entity mesh
     this._mesh.add(tankBodyMesh);
     this._mesh.add(tankTurretMesh);
+
+    //tank collider
+    const collider = new Box3().setFromObject(this._mesh).getBoundingSphere(new Sphere(this._mesh.position.clone()));
+
+    //reduce the size of collider 
+    collider.radius *= 0.75;
+    this._collider = collider;
   };
 
   public update = (deltaT: number) => {
@@ -139,7 +147,31 @@ class playerTank extends GameEntity {
 
     this._rotation = computedRotation;
     this._mesh.setRotationFromAxisAngle(new Vector3(0, 0, 1), computedRotation);
+
+    //check for collisions before moving
+    const testingSphere = this._collider?.clone() as Sphere;
+    testingSphere.center.add(computedMovement);
+
+    //search for collisions
+    const colliders = GameScene.instance.gameEntities.filter(
+        (e) =>
+            e !== this && e.collider && e.collider!.intersectsSphere(testingSphere)
+    );
+
+    //smth is blocking the tank
+    if(colliders.length){
+        return;
+    }
+
+    //update position
     this._mesh.position.add(computedMovement);
+    (this._collider as Sphere).center.add(computedMovement);
+
+    GameScene.instance.camera.position.set(
+        this._mesh.position.x,
+        this._mesh.position.y,
+        GameScene.instance.camera.position.z
+    );
   };
 }
 
