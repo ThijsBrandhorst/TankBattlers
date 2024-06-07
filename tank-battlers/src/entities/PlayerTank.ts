@@ -2,6 +2,7 @@ import { Box3, Mesh, MeshStandardMaterial, Sphere, Vector3 } from "three";
 import GameEntity from "./GameEntity";
 import ResourceManager from "../utils/ResourceManager";
 import GameScene from "../scene/GameScene";
+import Bullet from "./Bullet";
 
 type keyboardState = {
   LeftPressed: boolean;
@@ -21,7 +22,7 @@ class playerTank extends GameEntity {
   };
 
   constructor(position: Vector3) {
-    super(position);
+    super(position, "player");
 
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
@@ -47,7 +48,7 @@ class playerTank extends GameEntity {
     }
   };
 
-  private handleKeyUp = (e: KeyboardEvent) => {
+  private handleKeyUp = async (e: KeyboardEvent) => {
     switch (e.key) {
       case "a":
         this._keyboardState.LeftPressed = false;
@@ -61,10 +62,28 @@ class playerTank extends GameEntity {
       case "s":
         this._keyboardState.DownPressed = false;
         break;
+        case " ": //shooting
+          await this.shoot();
+          break;
       default:
         break;
     }
   };
+
+
+  private shoot = async () => {
+    const offset = new Vector3(
+      Math.sin(this._rotation) * 0.3,
+      -Math.cos(this._rotation) * 0.3,
+      0
+    );
+    const shootingPosition = this._mesh.position.clone().add(offset);
+
+    //create and load bullet
+    const bullet = new Bullet(shootingPosition, this._rotation);
+    await bullet.load();
+    GameScene.instance.addToScene(bullet);
+    };
 
   public load = async () => {
     //ask the models and textures to resource manager
@@ -155,7 +174,7 @@ class playerTank extends GameEntity {
     //search for collisions
     const colliders = GameScene.instance.gameEntities.filter(
         (e) =>
-            e !== this && e.collider && e.collider!.intersectsSphere(testingSphere)
+            e !== this && e.EntityType !== "bullet" && e.collider && e.collider!.intersectsSphere(testingSphere)
     );
 
     //smth is blocking the tank
