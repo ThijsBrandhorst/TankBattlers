@@ -4,6 +4,7 @@ import {
   Scene,
   Vector3,
   HemisphereLight,
+  Clock,
 } from "three";
 import GameEntity from "../entities/GameEntity";
 import GameMap from "../map/GameMap";
@@ -28,6 +29,8 @@ class GameScene {
 
   // Game entities
   private _gameEntities: GameEntity[] = [];
+
+  private _clock:Clock = new Clock();
 
   private constructor() {
     this._width = window.innerWidth;
@@ -83,12 +86,18 @@ class GameScene {
     }
 
     //Add light
-    const light = new HemisphereLight(0xffffbb, 0x080820, 1);
+    const light = new HemisphereLight(0xffe0b2, 0x555555, 1);
     this._scene.add(light);
   };
 
   public render = () => {
     requestAnimationFrame(this.render);
+    const deltaT = this._clock.getDelta();
+    //update the state of all entities
+    for(let index = 0; index < this._gameEntities.length; index++){
+      const element = this._gameEntities[index];
+      element.update(deltaT);
+    }
     this._renderer.render(this._scene, this._camera);
   };
 }
