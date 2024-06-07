@@ -1,7 +1,15 @@
-import { PerspectiveCamera, WebGLRenderer, Scene, Vector3, HemisphereLight } from "three";
+import {
+  PerspectiveCamera,
+  WebGLRenderer,
+  Scene,
+  Vector3,
+  HemisphereLight,
+  Clock,
+} from "three";
 import GameEntity from "../entities/GameEntity";
 import GameMap from "../map/GameMap";
 import ResourceManager from "../utils/ResourceManager";
+import PlayerTank from "../entities/PlayerTank";
 
 class GameScene {
   private static _instance: GameScene;
@@ -22,6 +30,8 @@ class GameScene {
   // Game entities
   private _gameEntities: GameEntity[] = [];
 
+  private _clock:Clock = new Clock();
+
   private constructor() {
     this._width = window.innerWidth;
     this._height = window.innerHeight;
@@ -33,7 +43,8 @@ class GameScene {
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._renderer.setSize(this._width, this._height);
 
-    const targetElement = document.querySelector<HTMLElement>("#threejs-container");
+    const targetElement =
+      document.querySelector<HTMLElement>("#threejs-container");
     if (!targetElement) {
       throw new Error("target element not found");
     }
@@ -46,9 +57,13 @@ class GameScene {
     //Size change
     window.addEventListener("resize", this.resize, false);
 
-    //add the game map
+    //add the map
     const gameMap = new GameMap(new Vector3(0, 0, 0), 15);
     this._gameEntities.push(gameMap);
+
+    //add the player tank
+    const playerTank = new PlayerTank(new Vector3(7, 7, 0));
+    this._gameEntities.push(playerTank);
   }
 
   private resize = () => {
@@ -57,26 +72,32 @@ class GameScene {
     this._renderer.setSize(this._width, this._height);
     this._camera.aspect = this._width / this._height;
     this._camera.updateProjectionMatrix();
-  }
+  };
 
-  public load = async() => {
+  public load = async () => {
     //Load game resources
     await ResourceManager.instance.load();
 
     //Load game entities
-    for(let index = 0; index < this._gameEntities.length; index++) {
+    for (let index = 0; index < this._gameEntities.length; index++) {
       const element = this._gameEntities[index];
       await element.load();
       this._scene.add(element.mesh);
     }
 
     //Add light
-    const light = new HemisphereLight(0xffffbb, 0x080820, 1);
+    const light = new HemisphereLight(0xffe0b2, 0x555555, 1);
     this._scene.add(light);
   };
 
   public render = () => {
     requestAnimationFrame(this.render);
+    const deltaT = this._clock.getDelta();
+    //update the state of all entities
+    for(let index = 0; index < this._gameEntities.length; index++){
+      const element = this._gameEntities[index];
+      element.update(deltaT);
+    }
     this._renderer.render(this._scene, this._camera);
   };
 }
