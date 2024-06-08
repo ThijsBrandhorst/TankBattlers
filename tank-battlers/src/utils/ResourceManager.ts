@@ -51,7 +51,17 @@ class ResourceManager{
         this._textures.set("tank-body", tankBodyTexture);
         this._textures.set("tank-turret", tankTurretTexture);
 
-        //Walls
+
+        //load enemy tank
+        //enemy tank
+        const tankBodyTextureRed = await textureLoader.loadAsync("textures/tank-body-red.png");
+        const tankTurretTextureRed = await textureLoader.loadAsync("textures/tank-turret-red.png");
+
+
+        this._textures.set("tank-body-red", tankBodyTextureRed);
+        this._textures.set("tank-turret-red", tankTurretTextureRed);
+
+        //walls
         const wallTexture = await textureLoader.loadAsync("textures/wall.png");
         this._textures.set("wall", wallTexture);
     }

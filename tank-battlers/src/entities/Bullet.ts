@@ -2,6 +2,7 @@ import { Box3, Material, Mesh, MeshPhongMaterial, Sphere, SphereGeometry, Vector
 import GameEntity from "./GameEntity";
 import GameScene from "../scene/GameScene";
 import ExplosionEffect from "../effects/ExplosionEffect";
+import EnemyTank from "./EnemyTank";
 
 class Bullet extends GameEntity{
 
@@ -57,6 +58,13 @@ class Bullet extends GameEntity{
             explosion.load().then(() => {
                 GameScene.instance.addToScene(explosion);
             });
+
+            //ENEMY IN THE COLLIDERS??!??!?!?!??!
+            const enemies = colliders.filter((c) => c.EntityType === "enemy");
+
+            if(enemies.length){
+               (enemies[0] as EnemyTank).damage(20); 
+            }
 
         }
     };
