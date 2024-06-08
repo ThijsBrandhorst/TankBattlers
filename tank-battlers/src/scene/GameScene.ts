@@ -122,6 +122,9 @@ class GameScene {
 
   public render = () => {
     requestAnimationFrame(this.render);
+    //remove entities that are not needed anymore
+    this.disposeEntities();
+
     const deltaT = this._clock.getDelta();
     //update the state of all entities
     for(let index = 0; index < this._gameEntities.length; index++){
@@ -129,6 +132,23 @@ class GameScene {
       element.update(deltaT);
     }
     this._renderer.render(this._scene, this._camera);
+  };
+
+  //Add entities dynamic
+  public addToScene = (entity: GameEntity) => {
+    this._gameEntities.push(entity);
+    this._scene.add(entity.mesh);
+  }
+
+  //remove entities when not needed
+  private disposeEntities = () => {
+    const entitiesToBeDisposed = this._gameEntities.filter((e) => e.shouldDispose);
+    entitiesToBeDisposed.forEach((element) => {
+      this._scene.remove(element.mesh);
+      element.dispose();
+    });
+    //update entity arraay
+    this._gameEntities = [ ...this._gameEntities.filter((e) => !e.shouldDispose) ];
   };
 }
 
