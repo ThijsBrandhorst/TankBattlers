@@ -3,6 +3,7 @@ import GameEntity from "./GameEntity";
 import ResourceManager from "../utils/ResourceManager";
 import GameScene from "../scene/GameScene";
 import Bullet from "./Bullet";
+import ShootEffect from "../effects/ShootEffect";
 
 type keyboardState = {
   LeftPressed: boolean;
@@ -73,15 +74,21 @@ class playerTank extends GameEntity {
 
   private shoot = async () => {
     const offset = new Vector3(
-      Math.sin(this._rotation) * 0.3,
-      -Math.cos(this._rotation) * 0.3,
-      0
+      Math.sin(this._rotation) * 0.45,
+      -Math.cos(this._rotation) * 0.45,
+      0.5
     );
     const shootingPosition = this._mesh.position.clone().add(offset);
 
     //create and load bullet
     const bullet = new Bullet(shootingPosition, this._rotation);
     await bullet.load();
+
+    //partical effect
+    const shootEffect = new ShootEffect(shootingPosition, this._rotation);
+    await shootEffect.load();
+
+    GameScene.instance.addToScene(shootEffect);
     GameScene.instance.addToScene(bullet);
     };
 
