@@ -12,6 +12,7 @@ import ResourceManager from "../utils/ResourceManager";
 import PlayerTank from "../entities/PlayerTank";
 import Wall from "../map/Wall";
 import EnemyTank from "../entities/EnemyTank";
+import PlayerTank2 from "../entities/PlayerTank2";
 
 class GameScene {
   private static _instance: GameScene;
@@ -26,7 +27,7 @@ class GameScene {
   private _renderer: WebGLRenderer;
   private _camera: PerspectiveCamera;
 
-  // Three.js scene
+  //Three.js scene
   private readonly _scene = new Scene();
 
   // Game entities
@@ -77,6 +78,10 @@ class GameScene {
     const playerTank = new PlayerTank(new Vector3(7, 7, 0));
     this._gameEntities.push(playerTank);
 
+    //add player tank 2
+    const playerTank2 = new PlayerTank2(new Vector3(8, 8, 0));
+    this._gameEntities.push(playerTank2);
+
     const enemyTank = new EnemyTank(new Vector3(3, 3, 0));
     this._gameEntities.push(enemyTank);
 
@@ -87,6 +92,8 @@ class GameScene {
   private createWalls = () => {
     const edge = this._mapSize;
 
+
+    //boundary walls
     this._gameEntities.push(new Wall(new Vector3(0, 0, 0)));
     this._gameEntities.push(new Wall(new Vector3(edge, 0, 0)));
     this._gameEntities.push(new Wall(new Vector3(edge, edge, 0)));
@@ -98,6 +105,19 @@ class GameScene {
       this._gameEntities.push(new Wall(new Vector3(edge, i, 0)));
       this._gameEntities.push(new Wall(new Vector3(i, edge, 0)));
     }
+
+      //random walls
+    // const numWalls = Math.floor((edge * edge) / 12);
+    // for (let i = 0; i < numWalls; i++) {
+    //     const x = Math.floor(Math.random() * edge);
+    //     const y = Math.floor(Math.random() * edge);
+
+    //     if ((x === 0 && y === 0) || (x === edge && y === edge)) {
+    //         continue;
+    //     }
+
+    //     this._gameEntities.push(new Wall(new Vector3(x, y, 0)));
+    // }
   };
 
   private resize = () => {
@@ -126,11 +146,11 @@ class GameScene {
 
   public render = () => {
     requestAnimationFrame(this.render);
-    //remove entities that are not needed anymore
+ 
     this.disposeEntities();
 
     const deltaT = this._clock.getDelta();
-    //update the state of all entities
+
     for(let index = 0; index < this._gameEntities.length; index++){
       const element = this._gameEntities[index];
       element.update(deltaT);
@@ -138,7 +158,7 @@ class GameScene {
     this._renderer.render(this._scene, this._camera);
   };
 
-  //Add entities dynamic
+  //Add entities
   public addToScene = (entity: GameEntity) => {
     this._gameEntities.push(entity);
     this._scene.add(entity.mesh);

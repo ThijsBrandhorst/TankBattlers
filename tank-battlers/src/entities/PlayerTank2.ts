@@ -12,9 +12,8 @@ type keyboardState = {
   DownPressed: boolean;
 };
 
-class playerTank extends GameEntity {
+class PlayerTank2 extends GameEntity {
     private _rotation: number = 0;
-    private _health: number = 100;
 
   private _keyboardState: keyboardState = {
     LeftPressed: false,
@@ -24,7 +23,7 @@ class playerTank extends GameEntity {
   };
 
   constructor(position: Vector3) {
-    super(position, "player");
+    super(position, "player2");
 
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
@@ -33,16 +32,16 @@ class playerTank extends GameEntity {
   //Handle key presses
   private handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key) {
-      case "a":
+      case "j":
         this._keyboardState.LeftPressed = true;
         break;
-      case "d":
+      case "l":
         this._keyboardState.RightPressed = true;
         break;
-      case "w":
+      case "i":
         this._keyboardState.UpPressed = true;
         break;
-      case "s":
+      case "k":
         this._keyboardState.DownPressed = true;
         break;
       default:
@@ -52,19 +51,19 @@ class playerTank extends GameEntity {
 
   private handleKeyUp = async (e: KeyboardEvent) => {
     switch (e.key) {
-      case "a":
+      case "j":
         this._keyboardState.LeftPressed = false;
         break;
-      case "d":
+      case "l":
         this._keyboardState.RightPressed = false;
         break;
-      case "w":
+      case "i":
         this._keyboardState.UpPressed = false;
         break;
-      case "s":
+      case "k":
         this._keyboardState.DownPressed = false;
         break;
-        case " ": //shooting
+        case "Enter": //shooting
           await this.shoot();
           break;
       default:
@@ -77,7 +76,7 @@ class playerTank extends GameEntity {
     const offset = new Vector3(
       Math.sin(this._rotation) * 0.45,
       -Math.cos(this._rotation) * 0.45,
-      0.5
+      0.45
     );
     const shootingPosition = this._mesh.position.clone().add(offset);
 
@@ -111,9 +110,9 @@ class playerTank extends GameEntity {
       (m) => m.name === "Turret"
     ) as Mesh;
 
-    const tankBodyTexture = ResourceManager.instance.getTexture("tank-body");
+    const tankBodyTexture = ResourceManager.instance.getTexture("tank-body-red");
     const tankTurretTexture =
-      ResourceManager.instance.getTexture("tank-turret");
+      ResourceManager.instance.getTexture("tank-turret-red");
 
     if (
       !tankBodyTexture ||
@@ -204,18 +203,6 @@ class playerTank extends GameEntity {
         GameScene.instance.camera.position.z
     );
   };
-
-  public damage = (amount: number) => {
-    this._health -= amount;
-    if (this._health <= 0) {
-      this.destroy();
-    }
-  };
-
-  private destroy = () => {
-    this._shouldDispose = true;
-    
-  };
 }
 
-export default playerTank;
+export default PlayerTank2;

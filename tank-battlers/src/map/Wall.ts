@@ -22,6 +22,7 @@ class Wall extends GameEntity{
 
         //wall collider
         this._collider = new Box3().setFromObject(this._mesh);
+
     };
 }
 

@@ -46,8 +46,11 @@ class Bullet extends GameEntity{
             c.collider &&
             c !== this &&
             c.EntityType !== "player" &&
+            c.EntityType !== "player2" &&
             c.collider.intersectsSphere(this._collider as Sphere)
         );
+
+
 
         //when there is a collision the bullet removes
         if(colliders.length){
