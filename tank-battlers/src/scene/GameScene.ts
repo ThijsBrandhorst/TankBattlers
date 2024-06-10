@@ -11,7 +11,7 @@ import GameMap from "../map/GameMap";
 import ResourceManager from "../utils/ResourceManager";
 import PlayerTank from "../entities/PlayerTank";
 import Wall from "../map/Wall";
-import EnemyTank from "../entities/EnemyTank";
+import PlayerTank2 from "../entities/PlayerTank2";
 
 class GameScene {
   private static _instance: GameScene;
@@ -26,13 +26,13 @@ class GameScene {
   private _renderer: WebGLRenderer;
   private _camera: PerspectiveCamera;
 
-  // Three.js scene
+  //three.js scene
   private readonly _scene = new Scene();
 
-  // Game entities
+  //game entities
   private _gameEntities: GameEntity[] = [];
 
-  private _mapSize = 15;
+  private _mapSize = 20;
 
   private _clock:Clock = new Clock();
 
@@ -42,6 +42,10 @@ class GameScene {
 
   public get gameEntities(){
     return this._gameEntities;
+  }
+
+  public get mapSize(){
+    return this._mapSize;
   }
 
   private constructor() {
@@ -64,9 +68,9 @@ class GameScene {
 
     const aspectRatio = this._width / this._height;
     this._camera = new PerspectiveCamera(45, aspectRatio, 0.1, 1000);
-    this._camera.position.set(7, 7, 15);
+    this._camera.position.set(10, 10, 25);
 
-    //Size change
+    //size change
     window.addEventListener("resize", this.resize, false);
 
     //add the map
@@ -74,11 +78,12 @@ class GameScene {
     this._gameEntities.push(gameMap);
 
     //add the player tank
-    const playerTank = new PlayerTank(new Vector3(7, 7, 0));
+    const playerTank = new PlayerTank(new Vector3(18, 2, 0));
     this._gameEntities.push(playerTank);
 
-    const enemyTank = new EnemyTank(new Vector3(3, 3, 0));
-    this._gameEntities.push(enemyTank);
+    //add player tank 2
+    const playerTank2 = new PlayerTank2(new Vector3(2, 18, 0));
+    this._gameEntities.push(playerTank2);
 
     this.createWalls();
   }
@@ -86,7 +91,9 @@ class GameScene {
   //creating walls
   private createWalls = () => {
     const edge = this._mapSize;
+    const minDistanceFromPlayer = 2;
 
+    //boundary walls
     this._gameEntities.push(new Wall(new Vector3(0, 0, 0)));
     this._gameEntities.push(new Wall(new Vector3(edge, 0, 0)));
     this._gameEntities.push(new Wall(new Vector3(edge, edge, 0)));
@@ -98,7 +105,24 @@ class GameScene {
       this._gameEntities.push(new Wall(new Vector3(edge, i, 0)));
       this._gameEntities.push(new Wall(new Vector3(i, edge, 0)));
     }
+
+    //random walls
+    const numWalls = Math.floor((edge * edge) / 12);
+    for (let i = 0; i < numWalls; i++) {
+      let x, y;
+      do {
+        x = Math.floor(Math.random() * edge);
+        y = Math.floor(Math.random() * edge);
+      } while (
+        (Math.abs(x - 2) <= minDistanceFromPlayer && Math.abs(y - 18) <= minDistanceFromPlayer) || 
+        (Math.abs(x - 18) <= minDistanceFromPlayer && Math.abs(y - 2) <= minDistanceFromPlayer) || 
+        (x === edge && y === edge)
+      );
+  
+      this._gameEntities.push(new Wall(new Vector3(x, y, 0)));
+    }
   };
+  
 
   private resize = () => {
     this._width = window.innerWidth;
@@ -126,11 +150,11 @@ class GameScene {
 
   public render = () => {
     requestAnimationFrame(this.render);
-    //remove entities that are not needed anymore
+ 
     this.disposeEntities();
 
     const deltaT = this._clock.getDelta();
-    //update the state of all entities
+
     for(let index = 0; index < this._gameEntities.length; index++){
       const element = this._gameEntities[index];
       element.update(deltaT);
@@ -138,7 +162,7 @@ class GameScene {
     this._renderer.render(this._scene, this._camera);
   };
 
-  //Add entities dynamic
+  //Add entities
   public addToScene = (entity: GameEntity) => {
     this._gameEntities.push(entity);
     this._scene.add(entity.mesh);

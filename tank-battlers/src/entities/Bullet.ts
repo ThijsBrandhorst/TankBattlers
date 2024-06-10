@@ -2,7 +2,8 @@ import { Box3, Material, Mesh, MeshPhongMaterial, Sphere, SphereGeometry, Vector
 import GameEntity from "./GameEntity";
 import GameScene from "../scene/GameScene";
 import ExplosionEffect from "../effects/ExplosionEffect";
-import EnemyTank from "./EnemyTank";
+import playerTank from "./PlayerTank";
+import PlayerTank2 from "./PlayerTank2";
 
 class Bullet extends GameEntity{
 
@@ -45,9 +46,10 @@ class Bullet extends GameEntity{
             (c) =>
             c.collider &&
             c !== this &&
-            c.EntityType !== "player" &&
             c.collider.intersectsSphere(this._collider as Sphere)
         );
+
+
 
         //when there is a collision the bullet removes
         if(colliders.length){
@@ -59,11 +61,16 @@ class Bullet extends GameEntity{
                 GameScene.instance.addToScene(explosion);
             });
 
-            //ENEMY IN THE COLLIDERS??!??!?!?!??!
-            const enemies = colliders.filter((c) => c.EntityType === "enemy");
+            //PLAYERS IN THE COLLIDERS!?!!??!?!?!?!??!?!?!??!?!?!
+            const player1 = colliders.filter((c) => c.EntityType === "player");
+            const player2 = colliders.filter((c) => c.EntityType === "player2");
 
-            if(enemies.length){
-               (enemies[0] as EnemyTank).damage(20); 
+            if(player1.length){
+                (player1[0] as playerTank).damage(20);
+            }
+
+            if(player2.length){
+                (player2[0] as PlayerTank2).damage(20);
             }
 
         }
