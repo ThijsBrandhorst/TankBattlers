@@ -72,7 +72,6 @@ class Bullet extends GameEntity{
             if(player2.length){
                 (player2[0] as PlayerTank2).damage(20);
             }
-
         }
     };
 

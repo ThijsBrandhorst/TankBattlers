@@ -1,4 +1,13 @@
-import { Box3, Mesh, MeshStandardMaterial, Sphere, Vector3 } from "three";
+import {
+  Audio,
+  Box3,
+  Mesh,
+  MeshStandardMaterial,
+  Sphere,
+  Vector3,
+  AudioListener,
+  AudioLoader,
+} from "three";
 import GameEntity from "./GameEntity";
 import ResourceManager from "../utils/ResourceManager";
 import GameScene from "../scene/GameScene";
@@ -16,8 +25,15 @@ type keyboardState = {
 class PlayerTank2 extends GameEntity {
   private _rotation: number = 0;
   private _health: number = 100;
-  private _shootCooldown = 1000;
+  private _shootCooldown = 2500;
   private _lastShoot: number = 0;
+  private ammo = 7;
+
+  private _shootingSound: Audio;
+  private _explodingSound: Audio;
+  private _shootReady : Audio;
+  private _audioListener: AudioListener;
+
 
   private _keyboardState: keyboardState = {
     LeftPressed: false,
@@ -28,6 +44,31 @@ class PlayerTank2 extends GameEntity {
 
   constructor(position: Vector3) {
     super(position, "player2");
+
+    this._audioListener = new AudioListener();
+
+    this._shootingSound = new Audio(this._audioListener);
+    this._explodingSound = new Audio(this._audioListener);
+    this._shootReady = new Audio(this._audioListener);
+
+  
+    const audioLoader = new AudioLoader();
+    audioLoader.load('audio/shooting.mp3', (buffer) => {
+      this._shootingSound.setBuffer(buffer);
+      this._shootingSound.setVolume(1);
+    });
+
+    const explodingAudio = new AudioLoader();
+    explodingAudio.load('audio/death-explosion.mp3', (buffer) => {
+      this._explodingSound.setBuffer(buffer);
+      this._explodingSound.setVolume(2.5);
+    });
+
+    const readyAudio = new AudioLoader();
+    readyAudio.load('audio/shoot-ready.mp3', (buffer) => {
+      this._shootReady.setBuffer(buffer);
+      this._shootReady.setVolume(0.5);
+    });
 
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
@@ -47,6 +88,9 @@ class PlayerTank2 extends GameEntity {
         break;
       case "ArrowDown":
         this._keyboardState.DownPressed = true;
+        break;
+      case "Shift":
+        this.ammo = 7;
         break;
       default:
         break;
@@ -78,9 +122,17 @@ class PlayerTank2 extends GameEntity {
   private shoot = async () => {
     const now = performance.now();
     if (now - this._lastShoot < this._shootCooldown) {
-      return; 
+      return;
     }
+    this._shootReady.play();
     this._lastShoot = now;
+
+    if (this.ammo <= 0) {
+      return;
+    }
+    this.ammo--;
+
+    this._shootingSound.play();
 
     const offset = new Vector3(
       Math.sin(this._rotation) * 0.7,
@@ -215,6 +267,7 @@ class PlayerTank2 extends GameEntity {
   public damage = (amount: number) => {
     this._health -= amount;
     if (this._health <= 0) {
+      this._explodingSound.play();
       this._shouldDispose = true;
       const explosion = new ExplosionEffect(this._mesh.position, 2);
       explosion.load().then(() => {
@@ -227,6 +280,12 @@ class PlayerTank2 extends GameEntity {
   private respawn = async () => {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
+  
+
+    //STOP THE SOUNDS PLSSS!!!
+    this._shootingSound.stop();
+    this._shootingSound.buffer = null;
+
 
     const countdownElement = document.createElement("div");
     countdownElement.style.position = "absolute";

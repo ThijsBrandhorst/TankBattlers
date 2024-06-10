@@ -25,6 +25,8 @@ class GameScene {
   private _height: number;
   private _renderer: WebGLRenderer;
   private _camera: PerspectiveCamera;
+  private minDistanceFromPlayer = 2;
+
 
   //three.js scene
   private readonly _scene = new Scene();
@@ -86,12 +88,12 @@ class GameScene {
     this._gameEntities.push(playerTank2);
 
     this.createWalls();
-  }
+    }
 
   //creating walls
   private createWalls = () => {
     const edge = this._mapSize;
-    const minDistanceFromPlayer = 2;
+    const minDistanceFromPlayer = this.minDistanceFromPlayer;
 
     //boundary walls
     this._gameEntities.push(new Wall(new Vector3(0, 0, 0)));
@@ -122,7 +124,6 @@ class GameScene {
       this._gameEntities.push(new Wall(new Vector3(x, y, 0)));
     }
   };
-  
 
   private resize = () => {
     this._width = window.innerWidth;
@@ -152,7 +153,6 @@ class GameScene {
     requestAnimationFrame(this.render);
  
     this.disposeEntities();
-
     const deltaT = this._clock.getDelta();
 
     for(let index = 0; index < this._gameEntities.length; index++){
