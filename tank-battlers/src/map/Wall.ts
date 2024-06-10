@@ -1,11 +1,8 @@
-import { BoxGeometry, Mesh, MeshStandardMaterial, Vector3, Box3 } from "three";
+import { BoxGeometry, Mesh, MeshStandardMaterial, Box3 } from "three";
 import GameEntity from "../entities/GameEntity";
 import ResourceManager from "../utils/ResourceManager";
 
 class Wall extends GameEntity{
-    constructor(position: Vector3){
-        super(position);
-    }
 
     public load = async () => {
         const geometry = new BoxGeometry(1, 1, 1);

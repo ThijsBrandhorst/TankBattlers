@@ -2,16 +2,12 @@ import {
   Mesh,
   MeshStandardMaterial,
   PlaneGeometry,
-  TextureLoader,
   Vector3,
 } from "three";
 import GameEntity from "../entities/GameEntity";
 import ResourceManager from "../utils/ResourceManager";
 
 class MapTile extends GameEntity {
-  constructor(position: Vector3) {
-    super(position);
-  }
 
   public load = async () => {
     const tileTexture = ResourceManager.instance.getRandomGroundTexture();
@@ -32,7 +28,7 @@ class MapTile extends GameEntity {
 class GameMap extends GameEntity {
   private _size: number;
 
-  //Map tiles
+  //map tiles
   private _tiles: MapTile[] = [];
 
   constructor(position: Vector3, size: number) {
