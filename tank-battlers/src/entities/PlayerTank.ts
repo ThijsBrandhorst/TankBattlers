@@ -93,6 +93,7 @@ class playerTank extends GameEntity {
         break;
       case "r":
         this.ammo = 7;
+        this.updateUI();
         break;
       default:
         break;
@@ -133,6 +134,8 @@ class playerTank extends GameEntity {
       return;
     }
     this.ammo--;
+
+    this.updateUI();
 
     this._shootingSound.play();
 
@@ -265,8 +268,14 @@ class playerTank extends GameEntity {
     (this._collider as Sphere).center.add(computedMovement);
   };
 
+  private updateUI = () => {
+    document.getElementById('player1-health')!.innerText = this._health.toString();
+    document.getElementById('player1-ammo')!.innerText = this.ammo.toString();
+  }
+
   public damage = (amount: number) => {
     this._health -= amount;
+    this.updateUI();
     if (this._health <= 0) {
       this._explodingSound.play();
       this._shouldDispose = true;
@@ -278,47 +287,41 @@ class playerTank extends GameEntity {
     }
   };
 
+
+
   private respawn = async () => {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
 
-
-    //STOPPING SOUNDS!!!!!!!!!
+    //stop sounds!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     this._shootingSound.stop();
     this._shootingSound.buffer = null;
-    
 
-    const countdownElement = document.createElement("div");
-    countdownElement.style.position = "absolute";
-    countdownElement.style.top = "20px";
-    countdownElement.style.left = "20px";
-    countdownElement.style.color = "white";
-    countdownElement.style.fontSize = "24px";
-    document.body.appendChild(countdownElement);
-
+    //respawn countdown
     let countdown = 5;
+    const countdownElement = document.getElementById("player1-respawn")!;
+    const countdownText = document.getElementById("player1-countdown")!;
+    countdownElement.style.display = "block";
+    countdownText.innerText = countdown.toString();
 
     const updateCountdown = () => {
-      countdownElement.innerText = `Player 1 respawning in ${countdown}`;
       countdown--;
-
-      if (countdown >= 0) {
+      countdownText.innerText = countdown.toString();
+      if (countdown > 0) {
         setTimeout(updateCountdown, 1000);
       } else {
-        document.body.removeChild(countdownElement);
+        countdownElement.style.display = "none";
         proceedWithRespawn();
       }
     };
-
     updateCountdown();
 
     const proceedWithRespawn = async () => {
-      const initialPosition = new Vector3(18, 2, 0);
-
+      const initialPosition = new Vector3(2, 18, 0);
       const newTank = new playerTank(initialPosition);
-
       await newTank.load();
       GameScene.instance.addToScene(newTank);
+      newTank.updateUI();
     };
   };
 }
