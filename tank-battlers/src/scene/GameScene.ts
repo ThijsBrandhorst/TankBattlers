@@ -80,11 +80,11 @@ class GameScene {
     this._gameEntities.push(gameMap);
 
     //add the player tank
-    const playerTank = new PlayerTank(new Vector3(18, 2, 0));
+    const playerTank = new PlayerTank(new Vector3(2, 18, 0));
     this._gameEntities.push(playerTank);
 
     //add player tank 2
-    const playerTank2 = new PlayerTank2(new Vector3(2, 18, 0));
+    const playerTank2 = new PlayerTank2(new Vector3(18, 2, 0));
     this._gameEntities.push(playerTank2);
 
     this.createWalls();
