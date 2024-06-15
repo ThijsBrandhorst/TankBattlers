@@ -33,6 +33,7 @@ class playerTank extends GameEntity {
   private _shootingSound: Audio;
   private _explodingSound: Audio;
   private _shootReady : Audio;
+  private _hitSound: Audio;
   private _audioListener: AudioListener;
 
   private _keyboardState: keyboardState = {
@@ -50,6 +51,7 @@ class playerTank extends GameEntity {
     this._shootingSound = new Audio(this._audioListener);
     this._explodingSound = new Audio(this._audioListener);
     this._shootReady = new Audio(this._audioListener);
+    this._hitSound = new Audio(this._audioListener);
 
   
 
@@ -69,6 +71,12 @@ class playerTank extends GameEntity {
     readyAudio.load('audio/shoot-ready.mp3', (buffer) => {
       this._shootReady.setBuffer(buffer);
       this._shootReady.setVolume(0.5);
+    });
+
+    const hitAudio = new AudioLoader();
+    hitAudio.load('audio/hit-sound.mp3', (buffer) => {
+      this._hitSound.setBuffer(buffer);
+      this._hitSound.setVolume(0.6);
     });
 
 
@@ -274,6 +282,7 @@ class playerTank extends GameEntity {
   }
 
   public damage = (amount: number) => {
+    this._hitSound.play();
     this._health -= amount;
     this.updateUI();
     if (this._health <= 0) {
