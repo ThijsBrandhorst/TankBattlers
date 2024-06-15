@@ -137,14 +137,14 @@ class GameScene {
     //Load game resources
     await ResourceManager.instance.load();
 
-    //Load game entities
+    //load game entities
     for (let index = 0; index < this._gameEntities.length; index++) {
       const element = this._gameEntities[index];
       await element.load();
       this._scene.add(element.mesh);
     }
 
-    //Add light
+    //add light
     const light = new HemisphereLight(0xffffbb, 0x080820, 1);
     this._scene.add(light);
   };
